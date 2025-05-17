@@ -7,7 +7,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitInstance {
-    private const val BASE_URL = "http://tuo-indirizzo-ip:8000/"
+    private const val BASE_URL = "http://192.168.29.215:8000/"
 
     private val authInterceptor = Interceptor { chain ->
         val request = chain.request().newBuilder()
