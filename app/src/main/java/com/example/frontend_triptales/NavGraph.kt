@@ -4,9 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.frontend_triptales.AuthViewModel
 
 @Composable
-fun NavGraph(authViewModel: AuthViewModel) {
+fun AppNavigation(authViewModel: AuthViewModel) {
     val navController = rememberNavController()
 
     NavHost(
@@ -14,25 +15,22 @@ fun NavGraph(authViewModel: AuthViewModel) {
         startDestination = if (authViewModel.isLoggedIn.value) "home" else "login"
     ) {
         composable("login") {
-            LoginScreen(
-                onLoginSuccess = { navController.navigate("home") },
-                onNavigateToRegister = { navController.navigate("register") },
-                authViewModel = authViewModel
-            )
+            LoginScreen(navController = navController, authViewModel = authViewModel)
         }
+
         composable("register") {
-            // Assicurati di aver creato RegisterScreen.kt
-            RegisterScreen(
-                onRegisterSuccess = { navController.navigate("home") },
-                onNavigateToLogin = { navController.popBackStack() },
-                authViewModel = authViewModel
+            RegisterScreen(navController = navController, authViewModel = authViewModel)
+        }
+
+        composable("home") {
+            HomeScreen(
+                onLogout = {
+                    authViewModel.logout()
+                    navController.navigate("login") {
+                        popUpTo("home") { inclusive = true }
+                    }
+                }
             )
         }
-        composable("home") {
-            HomeScreen(onLogout = {
-                authViewModel.logout()
-                navController.navigate("login")
-            })
-        }
-    }
+   }
 }

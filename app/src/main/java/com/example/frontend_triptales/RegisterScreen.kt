@@ -1,32 +1,21 @@
 package com.example.frontend_triptales
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import android.widget.Toast
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.example.frontend_triptales.AuthViewModel
 
 @Composable
 fun RegisterScreen(
-    onRegisterSuccess: () -> Unit,
-    onNavigateToLogin: () -> Unit,
+    navController: NavController,
     authViewModel: AuthViewModel
 ) {
     var username by remember { mutableStateOf("") }
@@ -34,17 +23,19 @@ fun RegisterScreen(
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(32.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = "Registrazione",
-            style = MaterialTheme.typography.headlineLarge
+            style = MaterialTheme.typography.headlineMedium,
+            fontSize = 24.sp
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -76,11 +67,11 @@ fun RegisterScreen(
         )
 
         errorMessage?.let {
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = it,
                 color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodyMedium
             )
         }
 
@@ -91,11 +82,19 @@ fun RegisterScreen(
                 if (username.isNotBlank() && email.isNotBlank() && password.isNotBlank()) {
                     isLoading = true
                     errorMessage = null
-                    authViewModel.register( // Questo ora funzionerà
+                    authViewModel.register(
                         username = username,
                         email = email,
                         password = password,
-                        onSuccess = onRegisterSuccess,
+                        onSuccess = {
+                            isLoading = false
+                            Toast.makeText(
+                                context,
+                                "Registrazione completata! Effettua il login",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            navController.popBackStack() // Torna alla schermata di login
+                        },
                         onError = {
                             isLoading = false
                             errorMessage = it
@@ -117,7 +116,10 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        TextButton(onClick = onNavigateToLogin) {
+        TextButton(
+            onClick = { navController.popBackStack() },
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text("Hai già un account? Accedi")
         }
     }

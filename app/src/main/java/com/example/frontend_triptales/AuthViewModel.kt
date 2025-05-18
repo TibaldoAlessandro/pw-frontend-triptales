@@ -69,11 +69,8 @@ class AuthViewModel(private val context: Context) : ViewModel() {
                 )
 
                 if (response.isSuccessful) {
-                    response.body()?.let {
-                        saveAuthToken(it.token)
-                        _isLoggedIn.value = true
-                        onSuccess()
-                    } ?: onError("Invalid response")
+                    // Solo successo, senza login automatico
+                    onSuccess()
                 } else {
                     onError(response.errorBody()?.string() ?: "Registration failed")
                 }
