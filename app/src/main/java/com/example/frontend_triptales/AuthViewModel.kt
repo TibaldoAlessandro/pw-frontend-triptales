@@ -17,15 +17,22 @@ class AuthViewModel(private val context: Context) : ViewModel() {
 
     private fun checkAuthToken(): Boolean {
         val sharedPref = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
-        return sharedPref.getString("auth_token", null) != null
+        val token = sharedPref.getString("auth_token", null)
+        if (token != null) {
+            SharedPrefsManager.saveAuthToken(token)  // Sincronizza con il nostro singleton
+            return true
+        }
+        return false
     }
 
     private fun saveAuthToken(token: String) {
+        val tokenWithPrefix = "Token $token"
         val sharedPref = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
         sharedPref.edit().apply {
-            putString("auth_token", "Token $token")
+            putString("auth_token", tokenWithPrefix)
             apply()
         }
+        SharedPrefsManager.saveAuthToken(tokenWithPrefix)  // Salva anche nel singleton
     }
 
     fun login(
@@ -86,6 +93,7 @@ class AuthViewModel(private val context: Context) : ViewModel() {
             remove("auth_token")
             apply()
         }
+        SharedPrefsManager.clearAuthToken()  // Pulisci anche il singleton
         _isLoggedIn.value = false
     }
 }
