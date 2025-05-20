@@ -56,3 +56,16 @@ data class GroupInviteRequest(
 data class InvitationResponseRequest(
     val status: String  // ACCEPTED o REJECTED
 )
+
+data class Post(
+    val id: Int,
+    val author: User,
+    val group: Group,
+    val text: String,
+    val created_at: String
+)
+
+data class PostCreateRequest(
+    val group_id: Int,
+    val text: String
+)

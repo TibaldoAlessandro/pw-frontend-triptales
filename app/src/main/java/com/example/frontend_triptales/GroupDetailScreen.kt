@@ -4,14 +4,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
@@ -64,7 +63,7 @@ fun GroupDetailScreen(
             FloatingActionButton(
                 onClick = { showInviteDialog = true }
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Invita utente")
+                Icon(Icons.Default.Person, contentDescription = "Invita utente")
             }
         }
     ) { paddingValues ->
@@ -120,7 +119,22 @@ fun GroupDetailScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Qui potrai aggiungere la lista dei membri o altre funzionalità
+                    // Pulsante per visualizzare i post del gruppo
+                    Button(
+                        onClick = { navController.navigate("group_posts/$groupId") },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Chat,
+                            contentDescription = "Post"
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Visualizza post del gruppo")
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Lista dei membri
                     Text(
                         text = "Membri del gruppo",
                         style = MaterialTheme.typography.titleLarge
@@ -133,7 +147,9 @@ fun GroupDetailScreen(
                         modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
+                        // Usa items con la lista dei membri
                         items(listOf(currentGroup.creator)) { user ->
+                            // Usa il composable MemberItem
                             MemberItem(user = user)
                         }
                     }
@@ -209,27 +225,33 @@ fun GroupDetailScreen(
 
 @Composable
 fun MemberItem(user: User) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+    Card(
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Icon(
-            imageVector = Icons.Default.Person,
-            contentDescription = null,
-            modifier = Modifier.size(24.dp)
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Column {
-            Text(
-                text = user.username,
-                style = MaterialTheme.typography.bodyLarge
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = "User Icon",
+                modifier = Modifier.size(24.dp)
             )
-            Text(
-                text = user.email,
-                style = MaterialTheme.typography.bodySmall
-            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text(
+                    text = user.username,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                user.email?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
         }
     }
 }

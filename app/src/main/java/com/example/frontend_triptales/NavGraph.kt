@@ -10,6 +10,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 fun AppNavigation(authViewModel: AuthViewModel) {
     val navController = rememberNavController()
     val groupViewModel: GroupViewModel = viewModel(factory = GroupViewModelFactory())
+    val postViewModel: PostViewModel = viewModel(factory = PostViewModelFactory())
 
     NavHost(
         navController = navController,
@@ -35,7 +36,7 @@ fun AppNavigation(authViewModel: AuthViewModel) {
             )
         }
 
-        // Nuove rotte per gestione gruppi e inviti
+        // Rotte per gestione gruppi e inviti
         composable("groups") {
             GroupsScreen(
                 navController = navController,
@@ -63,6 +64,26 @@ fun AppNavigation(authViewModel: AuthViewModel) {
             InvitationsScreen(
                 navController = navController,
                 groupViewModel = groupViewModel
+            )
+        }
+
+        // Nuove rotte per gestione post
+        composable("group_posts/{groupId}") { backStackEntry ->
+            val groupId = backStackEntry.arguments?.getString("groupId")?.toIntOrNull() ?: -1
+            GroupPostsScreen(
+                groupId = groupId,
+                navController = navController,
+                groupViewModel = groupViewModel,
+                postViewModel = postViewModel
+            )
+        }
+
+        composable("create_post/{groupId}") { backStackEntry ->
+            val groupId = backStackEntry.arguments?.getString("groupId")?.toIntOrNull() ?: -1
+            CreatePostScreen(
+                groupId = groupId,
+                navController = navController,
+                postViewModel = postViewModel
             )
         }
     }

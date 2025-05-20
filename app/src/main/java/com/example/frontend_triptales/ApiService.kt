@@ -31,4 +31,13 @@ interface ApiService {
         @Path("invitationId") invitationId: Int,
         @Body responseData: InvitationResponseRequest
     ): Response<GroupInvitation>
+
+    @GET("api/posts/group/{groupId}/")
+    suspend fun getGroupPosts(@Path("groupId") groupId: Int): Response<List<Post>>
+
+    @POST("api/posts/")
+    suspend fun createPost(@Body postData: PostCreateRequest): Response<Post>
+
+    @DELETE("api/posts/{postId}/")
+    suspend fun deletePost(@Path("postId") postId: Int): Response<Unit>
 }
