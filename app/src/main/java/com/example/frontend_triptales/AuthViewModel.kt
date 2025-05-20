@@ -19,20 +19,33 @@ class AuthViewModel(private val context: Context) : ViewModel() {
         val sharedPref = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
         val token = sharedPref.getString("auth_token", null)
         if (token != null) {
-            SharedPrefsManager.saveAuthToken(token)  // Sincronizza con il nostro singleton
+            SharedPrefsManager.saveAuthToken(token)
+
+            // Recupera anche l'utente
+            val userId = sharedPref.getInt("user_id", -1)
+            val username = sharedPref.getString("username", null)
+            val email = sharedPref.getString("email", null)
+            if (userId != -1 && username != null && email != null) {
+                SharedPrefsManager.saveCurrentUser(User(userId, username, email))
+            }
+
             return true
         }
         return false
     }
 
-    private fun saveAuthToken(token: String) {
+    private fun saveAuthToken(token: String, user: User) {
         val tokenWithPrefix = "Token $token"
         val sharedPref = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
         sharedPref.edit().apply {
             putString("auth_token", tokenWithPrefix)
+            putInt("user_id", user.id)
+            putString("username", user.username)
+            putString("email", user.email)
             apply()
         }
-        SharedPrefsManager.saveAuthToken(tokenWithPrefix)  // Salva anche nel singleton
+        SharedPrefsManager.saveAuthToken(tokenWithPrefix)
+        SharedPrefsManager.saveCurrentUser(user)
     }
 
     fun login(
@@ -43,13 +56,10 @@ class AuthViewModel(private val context: Context) : ViewModel() {
     ) {
         viewModelScope.launch {
             try {
-                val response = RetrofitInstance.apiService.loginUser(
-                    LoginRequest(username, password)
-                )
-
+                val response = RetrofitInstance.apiService.loginUser(LoginRequest(username, password))
                 if (response.isSuccessful) {
                     response.body()?.let {
-                        saveAuthToken(it.token)
+                        saveAuthToken(it.token, it.user)
                         _isLoggedIn.value = true
                         onSuccess()
                     } ?: onError("Invalid response")
@@ -71,12 +81,8 @@ class AuthViewModel(private val context: Context) : ViewModel() {
     ) {
         viewModelScope.launch {
             try {
-                val response = RetrofitInstance.apiService.registerUser(
-                    RegisterRequest(username, email, password)
-                )
-
+                val response = RetrofitInstance.apiService.registerUser(RegisterRequest(username, email, password))
                 if (response.isSuccessful) {
-                    // Solo successo, senza login automatico
                     onSuccess()
                 } else {
                     onError(response.errorBody()?.string() ?: "Registration failed")
@@ -91,9 +97,18 @@ class AuthViewModel(private val context: Context) : ViewModel() {
         val sharedPref = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
         sharedPref.edit().apply {
             remove("auth_token")
+            remove("user_id")
+            remove("username")
+            remove("email")
             apply()
         }
-        SharedPrefsManager.clearAuthToken()  // Pulisci anche il singleton
+        SharedPrefsManager.clearAuthToken()
         _isLoggedIn.value = false
+    }
+
+    companion object {
+        fun getCurrentUserId(): Int {
+            return SharedPrefsManager.getCurrentUser()?.id ?: -1
+        }
     }
 }

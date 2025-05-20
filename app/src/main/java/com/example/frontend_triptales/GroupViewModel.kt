@@ -23,6 +23,47 @@ class GroupViewModel : ViewModel() {
     private val _message = mutableStateOf<String?>(null)
     val message: State<String?> = _message
 
+    private val _groupMembers = mutableStateOf<List<User>>(emptyList())
+    val groupMembers: State<List<User>> = _groupMembers
+
+    fun fetchGroupMembers(groupId: Int) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val response = RetrofitInstance.apiService.getGroupMembers(groupId)
+                if (response.isSuccessful) {
+                    _groupMembers.value = response.body() ?: emptyList()
+                } else {
+                    _message.value = "Errore nel recupero membri: ${response.message()}"
+                }
+            } catch (e: Exception) {
+                _message.value = "Errore di rete: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun deleteGroup(groupId: Int, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val response = RetrofitInstance.apiService.deleteGroup(groupId)
+                if (response.isSuccessful) {
+                    _message.value = "Gruppo eliminato con successo"
+                    fetchUserGroups()
+                    onSuccess()
+                } else {
+                    _message.value = "Errore eliminazione gruppo: ${response.message()}"
+                }
+            } catch (e: Exception) {
+                _message.value = "Errore di rete: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
     // Recupera i gruppi dell'utente
     fun fetchUserGroups() {
         viewModelScope.launch {

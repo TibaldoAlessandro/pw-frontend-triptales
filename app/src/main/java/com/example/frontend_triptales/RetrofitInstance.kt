@@ -42,6 +42,7 @@ class AuthInterceptor : Interceptor {
 // Singleton per gestire le preferenze condivise
 object SharedPrefsManager {
     private var authToken: String? = null
+    private var currentUser: User? = null
 
     fun saveAuthToken(token: String) {
         authToken = token
@@ -51,5 +52,12 @@ object SharedPrefsManager {
 
     fun clearAuthToken() {
         authToken = null
+        currentUser = null
     }
+
+    fun saveCurrentUser(user: User) {
+        currentUser = user
+    }
+
+    fun getCurrentUser(): User? = currentUser
 }

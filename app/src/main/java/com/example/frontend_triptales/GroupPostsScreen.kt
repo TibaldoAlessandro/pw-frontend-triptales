@@ -27,6 +27,8 @@ fun GroupPostsScreen(
     val isLoading by postViewModel.isLoading
     val message by postViewModel.message
 
+    val currentUserId = AuthViewModel.getCurrentUserId()
+
     // Trova il gruppo corrente in base all'ID
     val currentGroup = groups.find { it.id == groupId }
 
@@ -95,7 +97,7 @@ fun GroupPostsScreen(
                     items(posts) { post ->
                         PostItem(
                             post = post,
-                            isAuthor = post.author.id == currentGroup?.creator?.id,
+                            isAuthor = post.author.id == currentUserId,
                             onDelete = { postViewModel.deletePost(post.id, groupId) }
                         )
                     }

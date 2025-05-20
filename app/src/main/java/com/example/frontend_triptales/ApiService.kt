@@ -40,4 +40,10 @@ interface ApiService {
 
     @DELETE("api/posts/{postId}/")
     suspend fun deletePost(@Path("postId") postId: Int): Response<Unit>
+
+    @GET("api/groups/{groupId}/members/")
+    suspend fun getGroupMembers(@Path("groupId") groupId: Int): Response<List<User>>
+
+    @DELETE("api/groups/{groupId}/")
+    suspend fun deleteGroup(@Path("groupId") groupId: Int): Response<Unit>
 }

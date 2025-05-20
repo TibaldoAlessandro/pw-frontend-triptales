@@ -36,6 +36,7 @@ fun GroupDetailScreen(
     // Carica i gruppi se necessario
     LaunchedEffect(Unit) {
         if (groups.isEmpty()) {
+            groupViewModel.fetchGroupMembers(groupId)
             groupViewModel.fetchUserGroups()
         }
     }
@@ -58,6 +59,24 @@ fun GroupDetailScreen(
                     }
                 }
             )
+
+            val currentUserId = AuthViewModel.getCurrentUserId()
+
+            if (currentGroup?.creator?.id == currentUserId) {
+                Button(
+                    onClick = {
+                        groupViewModel.deleteGroup(currentGroup.id) {
+                            navController.popBackStack() // Torna alla lista gruppi
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                ) {
+                    Text("Elimina gruppo", color = MaterialTheme.colorScheme.onError)
+                }
+            }
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -148,10 +167,12 @@ fun GroupDetailScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         // Usa items con la lista dei membri
-                        items(listOf(currentGroup.creator)) { user ->
-                            // Usa il composable MemberItem
+                        val members by groupViewModel.groupMembers
+
+                        items(members) { user ->
                             MemberItem(user = user)
                         }
+
                     }
                 }
             }
