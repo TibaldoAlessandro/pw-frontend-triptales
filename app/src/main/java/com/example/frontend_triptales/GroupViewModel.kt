@@ -23,9 +23,11 @@ class GroupViewModel : ViewModel() {
     private val _message = mutableStateOf<String?>(null)
     val message: State<String?> = _message
 
+    // Stato per i membri del gruppo
     private val _groupMembers = mutableStateOf<List<User>>(emptyList())
     val groupMembers: State<List<User>> = _groupMembers
 
+    // Recupera i membri del gruppo
     fun fetchGroupMembers(groupId: Int) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -44,6 +46,7 @@ class GroupViewModel : ViewModel() {
         }
     }
 
+    // Elimina un gruppo
     fun deleteGroup(groupId: Int, onSuccess: () -> Unit) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -51,7 +54,8 @@ class GroupViewModel : ViewModel() {
                 val response = RetrofitInstance.apiService.deleteGroup(groupId)
                 if (response.isSuccessful) {
                     _message.value = "Gruppo eliminato con successo"
-                    fetchUserGroups()
+                    // Aggiorna la lista dei gruppi rimuovendo quello eliminato
+                    _groups.value = _groups.value.filter { it.id != groupId }
                     onSuccess()
                 } else {
                     _message.value = "Errore eliminazione gruppo: ${response.message()}"
@@ -112,7 +116,10 @@ class GroupViewModel : ViewModel() {
                 )
                 if (response.isSuccessful) {
                     _message.value = "Gruppo creato con successo"
-                    fetchUserGroups() // Aggiorna la lista dei gruppi
+                    // Aggiungi il nuovo gruppo alla lista esistente
+                    response.body()?.let { newGroup ->
+                        _groups.value = _groups.value + newGroup
+                    }
                     onSuccess()
                 } else {
                     _message.value = "Errore nella creazione del gruppo: ${response.message()}"

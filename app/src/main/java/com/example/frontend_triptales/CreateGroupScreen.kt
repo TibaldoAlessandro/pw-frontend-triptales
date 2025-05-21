@@ -3,6 +3,7 @@ package com.example.frontend_triptales
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -19,6 +20,7 @@ fun CreateGroupScreen(
     var groupDescription by remember { mutableStateOf("") }
     val isLoading by groupViewModel.isLoading
     val message by groupViewModel.message
+    var showResetDialog by remember { mutableStateOf(false) }
 
     // Gestione messaggi
     message?.let {
@@ -35,6 +37,16 @@ fun CreateGroupScreen(
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Torna indietro")
+                    }
+                },
+                actions = {
+                    // Aggiungiamo l'icona del cestino per ripulire il form
+                    IconButton(onClick = { showResetDialog = true }) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Svuota campi",
+                            tint = MaterialTheme.colorScheme.error
+                        )
                     }
                 }
             )
@@ -117,5 +129,31 @@ fun CreateGroupScreen(
                 }
             }
         }
+    }
+
+    // Dialog di conferma reset form
+    if (showResetDialog) {
+        AlertDialog(
+            onDismissRequest = { showResetDialog = false },
+            title = { Text("Svuota campi") },
+            text = { Text("Sei sicuro di voler cancellare tutti i dati inseriti?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        groupName = ""
+                        groupDescription = ""
+                        showResetDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Svuota", color = MaterialTheme.colorScheme.onError)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showResetDialog = false }) {
+                    Text("Annulla")
+                }
+            }
+        )
     }
 }

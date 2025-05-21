@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Chat
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -24,6 +25,7 @@ fun GroupDetailScreen(
     val groups by groupViewModel.groups
     val isLoading by groupViewModel.isLoading
     val message by groupViewModel.message
+    val members by groupViewModel.groupMembers
 
     // Trova il gruppo corrente in base all'ID
     val currentGroup = groups.find { it.id == groupId }
@@ -33,10 +35,13 @@ fun GroupDetailScreen(
     var emailToInvite by remember { mutableStateOf("") }
     var inviteError by remember { mutableStateOf<String?>(null) }
 
-    // Carica i gruppi se necessario
+    // Stato per il dialog di conferma eliminazione
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    // Carica i gruppi e i membri se necessario
     LaunchedEffect(Unit) {
+        groupViewModel.fetchGroupMembers(groupId)
         if (groups.isEmpty()) {
-            groupViewModel.fetchGroupMembers(groupId)
             groupViewModel.fetchUserGroups()
         }
     }
@@ -57,26 +62,20 @@ fun GroupDetailScreen(
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Torna indietro")
                     }
+                },
+                actions = {
+                    val currentUserId = AuthViewModel.getCurrentUserId()
+                    if (currentGroup?.creator?.id == currentUserId) {
+                        IconButton(onClick = { showDeleteDialog = true }) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Elimina gruppo",
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
                 }
             )
-
-            val currentUserId = AuthViewModel.getCurrentUserId()
-
-            if (currentGroup?.creator?.id == currentUserId) {
-                Button(
-                    onClick = {
-                        groupViewModel.deleteGroup(currentGroup.id) {
-                            navController.popBackStack() // Torna alla lista gruppi
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                ) {
-                    Text("Elimina gruppo", color = MaterialTheme.colorScheme.onError)
-                }
-            }
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -155,24 +154,27 @@ fun GroupDetailScreen(
 
                     // Lista dei membri
                     Text(
-                        text = "Membri del gruppo",
+                        text = "Membri del gruppo (${members.size})",
                         style = MaterialTheme.typography.titleLarge
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Per ora mostriamo solo il creatore come membro
-                    LazyColumn(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        // Usa items con la lista dei membri
-                        val members by groupViewModel.groupMembers
-
-                        items(members) { user ->
-                            MemberItem(user = user)
+                    if (members.isEmpty()) {
+                        Text(
+                            text = "Nessun membro trovato",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(members) { user ->
+                                MemberItem(user = user)
+                            }
                         }
-
                     }
                 }
             }
@@ -237,6 +239,35 @@ fun GroupDetailScreen(
                         inviteError = null
                     }
                 ) {
+                    Text("Annulla")
+                }
+            }
+        )
+    }
+
+    // Dialog di conferma eliminazione gruppo
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Elimina gruppo") },
+            text = { Text("Sei sicuro di voler eliminare questo gruppo? Quest'azione non può essere annullata.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        currentGroup?.let {
+                            groupViewModel.deleteGroup(it.id) {
+                                navController.popBackStack() // Torna alla lista gruppi
+                            }
+                        }
+                        showDeleteDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Elimina", color = MaterialTheme.colorScheme.onError)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
                     Text("Annulla")
                 }
             }
