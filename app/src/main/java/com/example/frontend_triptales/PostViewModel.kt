@@ -190,6 +190,10 @@ class PostViewModel : ViewModel() {
             val latRequestBody = latitude?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
             val lngRequestBody = longitude?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
 
+            Log.d("PostViewModel", "Post ID for upload: $postId")
+            Log.d("PostViewModel", "Image file size: ${file.length()}")
+            Log.d("PostViewModel", "Image file path: ${file.absolutePath}")
+
             val response = RetrofitInstance.apiService.uploadPhoto(
                 postRequestBody, imagePart, latRequestBody, lngRequestBody
             )

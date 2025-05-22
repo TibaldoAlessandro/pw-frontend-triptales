@@ -1,5 +1,6 @@
 package com.example.frontend_triptales
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -178,8 +179,10 @@ fun EnhancedPostItem(
             // Immagini del post
             if (post.photos.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(12.dp))
-
                 post.photos.forEach { photo ->
+                    // Aggiungi questo log per debug
+                    Log.d("GroupPostsScreen", "Image URL: ${photo.image}")
+
                     Image(
                         painter = rememberAsyncImagePainter(photo.image),
                         contentDescription = "Foto del post",
@@ -189,7 +192,6 @@ fun EnhancedPostItem(
                             .clip(RoundedCornerShape(8.dp)),
                         contentScale = ContentScale.Crop
                     )
-
                     if (post.photos.indexOf(photo) < post.photos.size - 1) {
                         Spacer(modifier = Modifier.height(8.dp))
                     }
