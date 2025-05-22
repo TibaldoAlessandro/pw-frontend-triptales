@@ -32,8 +32,6 @@ fun CreatePostScreen(
 ) {
     var postText by remember { mutableStateOf("") }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-    var createdPostId by remember { mutableStateOf<Int?>(null) }
-
     val isLoading by postViewModel.isLoading
     val isUploadingImage by postViewModel.isUploadingImage
     val message by postViewModel.message
@@ -79,7 +77,6 @@ fun CreatePostScreen(
                     text = "Scrivi un nuovo post",
                     style = MaterialTheme.typography.titleLarge
                 )
-
                 Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedTextField(
@@ -114,7 +111,6 @@ fun CreatePostScreen(
                                 text = "Aggiungi immagine",
                                 style = MaterialTheme.typography.titleMedium
                             )
-
                             Row {
                                 if (selectedImageUri != null) {
                                     IconButton(
@@ -127,7 +123,6 @@ fun CreatePostScreen(
                                         )
                                     }
                                 }
-
                                 IconButton(
                                     onClick = { imagePickerLauncher.launch("image/*") }
                                 ) {
@@ -164,16 +159,12 @@ fun CreatePostScreen(
                 Button(
                     onClick = {
                         if (postText.isNotBlank()) {
-                            postViewModel.createPost(
+                            postViewModel.createPostWithImage(
                                 groupId = groupId,
                                 text = postText,
+                                imageUri = selectedImageUri,
+                                context = context,
                                 onSuccess = {
-                                    // Se c'è un'immagine selezionata, la carichiamo dopo aver creato il post
-                                    selectedImageUri?.let { uri ->
-                                        // Nota: qui dovresti ottenere l'ID del post appena creato
-                                        // Per semplicità, assumiamo che il backend restituisca il post con l'ID
-                                        // Potresti dover modificare il ViewModel per gestire questo caso
-                                    }
                                     navController.popBackStack()
                                 }
                             )
@@ -182,7 +173,7 @@ fun CreatePostScreen(
                     modifier = Modifier.fillMaxWidth(),
                     enabled = postText.isNotBlank() && !isLoading && !isUploadingImage
                 ) {
-                    if (isLoading) {
+                    if (isLoading || isUploadingImage) {
                         CircularProgressIndicator(
                             color = MaterialTheme.colorScheme.onPrimary,
                             strokeWidth = 2.dp,

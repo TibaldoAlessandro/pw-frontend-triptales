@@ -37,7 +37,9 @@ interface ApiService {
     @GET("api/posts/group/{groupId}/")
     suspend fun getGroupPosts(@Path("groupId") groupId: Int): Response<List<Post>>
 
+    // CORREZIONE: Assicurati che l'endpoint sia corretto
     @POST("api/posts/")
+    @Headers("Content-Type: application/json")
     suspend fun createPost(@Body postData: PostCreateRequest): Response<Post>
 
     @DELETE("api/posts/{postId}/")
@@ -68,6 +70,7 @@ interface ApiService {
     suspend fun getPostComments(@Path("postId") postId: Int): Response<List<Comment>>
 
     @POST("api/comments/")
+    @Headers("Content-Type: application/json")
     suspend fun createComment(@Body commentData: CommentCreateRequest): Response<Comment>
 
     @DELETE("api/comments/{commentId}/")

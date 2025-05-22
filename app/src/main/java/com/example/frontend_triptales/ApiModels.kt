@@ -1,4 +1,5 @@
 package com.example.frontend_triptales
+
 import java.util.Date
 
 // Modelli esistenti
@@ -91,14 +92,15 @@ data class Post(
     val user_has_liked: Boolean = false
 )
 
+// CORREZIONE: Assicurati che i nomi dei campi corrispondano al backend
 data class PostCreateRequest(
-    val group_id: Int,
+    val group_id: Int,  // IMPORTANTE: usa group_id invece di groupId
     val text: String
 )
 
 // Nuovi modelli per operazioni
 data class CommentCreateRequest(
-    val post_id: Int,
+    val post_id: Int,   // IMPORTANTE: usa post_id invece di postId
     val text: String
 )
 
