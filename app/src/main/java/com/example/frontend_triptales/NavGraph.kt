@@ -67,7 +67,7 @@ fun AppNavigation(authViewModel: AuthViewModel) {
             )
         }
 
-        // Nuove rotte per gestione post
+        // Rotte per gestione post
         composable("group_posts/{groupId}") { backStackEntry ->
             val groupId = backStackEntry.arguments?.getString("groupId")?.toIntOrNull() ?: -1
             GroupPostsScreen(
@@ -81,6 +81,21 @@ fun AppNavigation(authViewModel: AuthViewModel) {
         composable("create_post/{groupId}") { backStackEntry ->
             val groupId = backStackEntry.arguments?.getString("groupId")?.toIntOrNull() ?: -1
             CreatePostScreen(
+                groupId = groupId,
+                navController = navController,
+                postViewModel = postViewModel
+            )
+        }
+
+        // Nuova rotta per i commenti
+        composable("post_comments/{postId}") { backStackEntry ->
+            val postId = backStackEntry.arguments?.getString("postId")?.toIntOrNull() ?: -1
+            // Recuperiamo il groupId dal post corrente
+            val currentPost = postViewModel.posts.value.find { it.id == postId }
+            val groupId = currentPost?.group?.id ?: -1
+
+            PostCommentsScreen(
+                postId = postId,
                 groupId = groupId,
                 navController = navController,
                 postViewModel = postViewModel

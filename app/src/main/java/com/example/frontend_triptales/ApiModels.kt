@@ -1,5 +1,4 @@
 package com.example.frontend_triptales
-
 import java.util.Date
 
 // Modelli esistenti
@@ -50,11 +49,33 @@ data class GroupCreateRequest(
 )
 
 data class GroupInviteRequest(
-    val recipient: String  // Email dell'utente da invitare
+    val recipient: String // Email dell'utente da invitare
 )
 
 data class InvitationResponseRequest(
-    val status: String  // ACCEPTED o REJECTED
+    val status: String // ACCEPTED o REJECTED
+)
+
+// Modelli aggiornati per post con foto, like e commenti
+data class Photo(
+    val id: Int,
+    val image: String, // URL dell'immagine
+    val latitude: Double?,
+    val longitude: Double?,
+    val created_at: String
+)
+
+data class Like(
+    val id: Int,
+    val author: User,
+    val created_at: String
+)
+
+data class Comment(
+    val id: Int,
+    val author: User,
+    val text: String,
+    val created_at: String
 )
 
 data class Post(
@@ -62,10 +83,26 @@ data class Post(
     val author: User,
     val group: Group,
     val text: String,
-    val created_at: String
+    val created_at: String,
+    val photos: List<Photo> = emptyList(),
+    val likes: List<Like> = emptyList(),
+    val comments: List<Comment> = emptyList(),
+    val likes_count: Int = 0,
+    val user_has_liked: Boolean = false
 )
 
 data class PostCreateRequest(
     val group_id: Int,
     val text: String
+)
+
+// Nuovi modelli per operazioni
+data class CommentCreateRequest(
+    val post_id: Int,
+    val text: String
+)
+
+data class LikeResponse(
+    val liked: Boolean,
+    val likes_count: Int
 )

@@ -1,5 +1,7 @@
 package com.example.frontend_triptales
 
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -46,4 +48,28 @@ interface ApiService {
 
     @DELETE("api/groups/{groupId}/")
     suspend fun deleteGroup(@Path("groupId") groupId: Int): Response<Unit>
+
+    // API per le foto
+    @Multipart
+    @POST("api/photos/upload/")
+    suspend fun uploadPhoto(
+        @Part("post") postId: RequestBody,
+        @Part image: MultipartBody.Part,
+        @Part("latitude") latitude: RequestBody?,
+        @Part("longitude") longitude: RequestBody?
+    ): Response<Photo>
+
+    // API per i like
+    @POST("api/posts/{postId}/toggle-like/")
+    suspend fun toggleLike(@Path("postId") postId: Int): Response<LikeResponse>
+
+    // API per i commenti
+    @GET("api/comments/post/{postId}/")
+    suspend fun getPostComments(@Path("postId") postId: Int): Response<List<Comment>>
+
+    @POST("api/comments/")
+    suspend fun createComment(@Body commentData: CommentCreateRequest): Response<Comment>
+
+    @DELETE("api/comments/{commentId}/")
+    suspend fun deleteComment(@Path("commentId") commentId: Int): Response<Unit>
 }
