@@ -7,7 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import okhttp3.Interceptor
 
 object RetrofitInstance {
-    private const val BASE_URL = "https://centrally-innocent-walrus.ngrok-free.app"
+    private const val BASE_URL = "https://centrally-innocent-walrus.ngrok-free.app/"
 
     private val client by lazy {
         OkHttpClient.Builder()

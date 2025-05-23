@@ -51,9 +51,9 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
     implementation("androidx.compose.foundation:foundation:1.6.3")
     implementation("androidx.compose.material:material-icons-extended")
-    implementation("io.coil-kt:coil-compose:2.4.0")
     implementation("androidx.activity:activity-compose:1.8.2")
     implementation("com.google.accompanist:accompanist-permissions:0.32.0")
+    implementation("io.coil-kt:coil-compose:2.4.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
